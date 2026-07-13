@@ -1,5 +1,7 @@
 {
   "name": "HA Dashboard Cards",
+  "domain": "ha_dashboard_cards",
+  "content_in_root": false,
   "render_readme": true,
   "homeassistant": "2024.1.0",
   "country": [

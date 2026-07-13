@@ -4,11 +4,15 @@
   "after_dependencies": [
     "lovelace"
   ],
-  "codeowners": [],
+  "codeowners": [
+    "@duncas-run-it"
+  ],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/duncas-run-it/Home-Assistant",
+  "integration_type": "hub",
   "iot_class": "calculated",
+  "issue_tracker": "https://github.com/duncas-run-it/Home-Assistant/issues",
   "requirements": [],
   "version": "1.0.0"
 }
