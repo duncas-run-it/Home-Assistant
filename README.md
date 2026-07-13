@@ -1,4 +1,22 @@
-A repo containing custom cards formed from JavaScript to showcase dashboards for Synology NAS and Raspberry Pi.
+A collection of sleek, custom Lovelace dashboard cards for Home Assistant with built-in haptic feedback and visual editors.
+
+## Installation (HACS)
+
+1. Go to **HACS → Frontend → ⋮ → Custom repositories**
+2. Add `https://github.com/duncas-run-it/Home-Assistant` with category **Lovelace**
+3. Click **Install** on the desired card(s)
+4. Add the card resource: **Settings → Dashboards → Resources → Add Resource**
+   - URL: `/hacsfiles/home-assistant/synology-card.js`
+   - Type: **JavaScript Module**
+5. Repeat for additional cards if needed
+6. Refresh your browser (or use the HA refresh button)
+
+## Manual Install
+
+Copy the desired `.js` file to `<config>/www/`, then add it as a resource:
+- **Settings → Dashboards → Resources → Add Resource**
+- URL: `/local/synology-card.js` (or `/local/rapsberry-pi.js`)
+- Type: **JavaScript Module**
 
 ## Cards
 
@@ -6,10 +24,13 @@ A repo containing custom cards formed from JavaScript to showcase dashboards for
 
 A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM, storage, disk health, network, temperature, uptime, security status, and DSM update info.
 
+Type: `custom:synology-card`
+
 #### Configuration
 
 | Option | Description |
 |--------|-------------|
+| `title` | Card header title (default: "Synology NAS") |
 | `cpu_entity` | Sensor entity for CPU usage (%) |
 | `memory_entity` | Sensor entity for RAM usage (%) |
 | `volume_entity` | Sensor entity for storage volume (state or attributes with `used`/`total`) |
@@ -37,10 +58,13 @@ A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM
 
 A modern health monitor for Raspberry Pi with CPU temperature, RAM usage, disk space, power status, and uptime.
 
+Type: `custom:raspberry-pi`
+
 #### Configuration
 
 | Option | Description |
 |--------|-------------|
+| `title` | Card header title (default: "Raspberry Pi") |
 | `temp_entity` | Sensor entity for CPU temperature |
 | `ram_entity` | Sensor entity for RAM usage (%) |
 | `disk_entity` | Sensor entity for disk usage (%) |
