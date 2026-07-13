@@ -34,4 +34,22 @@ A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM
 
 ### Raspberry Pi Card (`rapsberry-pi.js`)
 
-A basic health card for Raspberry Pi monitoring.
+A modern health monitor for Raspberry Pi with CPU temperature, RAM usage, disk space, power status, and uptime.
+
+#### Configuration
+
+| Option | Description |
+|--------|-------------|
+| `temp_entity` | Sensor entity for CPU temperature |
+| `ram_entity` | Sensor entity for RAM usage (%) |
+| `disk_entity` | Sensor entity for disk usage (%) |
+| `power_entity` | Binary sensor for under-voltage detection (`on` = problem, `off` = OK) |
+| `uptime_entity` | (Optional) Sensor for system uptime |
+
+#### Features
+
+- **Progress bars** — RAM and disk usage show visual bars with color thresholds
+- **Under-voltage alert** — red warning box when power issues detected
+- **Haptic feedback** — light tap when tapping stats on the companion app
+- **Clickable stats** — tap any stat to open the more-info dialog
+- **Uptime display** — auto-formats timestamps, epoch, and seconds into human-readable durations
