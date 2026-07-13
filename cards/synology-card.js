@@ -58,6 +58,17 @@ class SynologyCard extends HTMLElement {
           .syno-status-badge.warning { background: rgba(234,179,8,0.15); color: #ca8a04; }
           .syno-status-badge.critical { background: rgba(239,68,68,0.15); color: #dc2626; }
           .syno-status-badge.neutral { background: rgba(100,116,139,0.15); color: #64748b; }
+          .syno-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; }
+          .syno-modal-overlay.show { display: flex; }
+          .syno-modal { background: var(--card-background-color, #ffffff); border-radius: 16px; padding: 24px; width: 80%; max-width: 320px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+          .syno-modal-title { font-size: 1em; font-weight: 700; color: var(--primary-text-color, #0f172a); margin-bottom: 6px; }
+          .syno-modal-text { font-size: 0.85em; color: var(--secondary-text-color, #64748b); margin-bottom: 20px; }
+          .syno-modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .syno-modal-btn { padding: 10px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.85em; cursor: pointer; transition: all 0.2s ease; }
+          .syno-modal-btn.confirm { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+          .syno-modal-btn.confirm:hover { background: linear-gradient(135deg, #f87171, #ef4444); }
+          .syno-modal-btn.cancel { background: var(--secondary-background-color, #f1f5f9); color: var(--primary-text-color, #0f172a); }
+          .syno-modal-btn.cancel:hover { background: var(--divider-color, #e2e8f0); }
           .syno-clickable { cursor: pointer; }
           .syno-clickable:hover { border-color: #3b82f6 !important; }
           .syno-row.syno-clickable:hover { background: rgba(59,130,246,0.05); border-radius: 6px; margin: 0 -4px; padding: 8px 4px; }
@@ -128,12 +139,24 @@ class SynologyCard extends HTMLElement {
           <button class="syno-btn power" id="syno-btn-power"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10M6.5 5.5a9 9 0 1 0 11 0"/></svg> Power On</button>
           <button class="syno-btn shutdown" id="syno-btn-shutdown"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4" y1="4" x2="20" y2="20"/></svg> Shut Down</button>
         </div>
+
+        <div class="syno-modal-overlay" id="syno-shutdown-modal">
+          <div class="syno-modal">
+            <div class="syno-modal-title">Shut Down NAS?</div>
+            <div class="syno-modal-text">This will send a shutdown command to your Synology NAS.</div>
+            <div class="syno-modal-buttons">
+              <button class="syno-modal-btn confirm" id="syno-modal-confirm">Shut Down</button>
+              <button class="syno-modal-btn cancel" id="syno-modal-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
       `;
       card.appendChild(this.content);
       this.appendChild(card);
 
       this.querySelector('#syno-btn-power').addEventListener('click', () => {
         if (this.config.power_on_entity) {
+          this._haptic('light');
           const domain = this.config.power_on_entity.split('.')[0];
           if (domain === 'button') {
             hass.callService('button', 'press', { entity_id: this.config.power_on_entity });
@@ -145,8 +168,24 @@ class SynologyCard extends HTMLElement {
         }
       });
       this.querySelector('#syno-btn-shutdown').addEventListener('click', () => {
-        if (this.config.shutdown_entity && confirm('Shut down the NAS?')) {
-          hass.callService('button', 'press', { entity_id: this.config.shutdown_entity });
+        if (this.config.shutdown_entity) {
+          this._haptic('light');
+          this.querySelector('#syno-shutdown-modal').classList.add('show');
+        }
+      });
+      this.querySelector('#syno-modal-confirm').addEventListener('click', () => {
+        this.querySelector('#syno-shutdown-modal').classList.remove('show');
+        this._haptic('heavy');
+        hass.callService('button', 'press', { entity_id: this.config.shutdown_entity });
+      });
+      this.querySelector('#syno-modal-cancel').addEventListener('click', () => {
+        this._haptic('light');
+        this.querySelector('#syno-shutdown-modal').classList.remove('show');
+      });
+      this.querySelector('#syno-shutdown-modal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+          this._haptic('light');
+          e.currentTarget.classList.remove('show');
         }
       });
 
@@ -388,6 +427,12 @@ class SynologyCard extends HTMLElement {
     const num = parseFloat(val);
     if (isNaN(num)) return val + (unit ? ' ' + unit : '');
     return num.toFixed(2) + ' ' + (unit || '');
+  }
+
+  _haptic(type) {
+    const event = new Event('haptic', { bubbles: true, composed: true });
+    event.detail = type;
+    window.dispatchEvent(event);
   }
 
   setConfig(config) {
