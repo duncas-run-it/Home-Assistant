@@ -108,19 +108,23 @@ class TestAsyncSetupCards:
                 source_dir,
         ):
             with patch(
-                    "custom_components.ha_dashboard_cards.www_manager.os.chmod",
-                    chmod,
+                    "custom_components.ha_dashboard_cards.www_manager.shutil.copy2",
+                    side_effect=lambda src, dst: None,
             ):
-                from custom_components.ha_dashboard_cards.www_manager import (
-                    async_setup_cards,
-                )
-
-                with patch.object(
-                        mock_hass.config,
-                        "path",
-                        return_value=str(tmp_path / "www"),
+                with patch(
+                        "custom_components.ha_dashboard_cards.www_manager.os.chmod",
+                        chmod,
                 ):
-                    result = await async_setup_cards(mock_hass)
+                    from custom_components.ha_dashboard_cards.www_manager import (
+                        async_setup_cards,
+                    )
+
+                    with patch.object(
+                            mock_hass.config,
+                            "path",
+                            return_value=str(tmp_path / "www"),
+                    ):
+                        result = await async_setup_cards(mock_hass)
 
         assert result is True
         assert chmod.call_count == 2
@@ -283,18 +287,22 @@ class TestAsyncRegisterCards:
                 "custom_components.ha_dashboard_cards.www_manager.WWW_SOURCE_DIR",
                 source_dir,
         ):
-            from custom_components.ha_dashboard_cards.www_manager import (
-                async_setup_cards,
-            )
-
-            with patch.object(
-                    mock_hass.config, "path", return_value=str(tmp_path / "www")
+            with patch(
+                    "custom_components.ha_dashboard_cards.www_manager.shutil.copy2",
+                    side_effect=lambda src, dst: None,
             ):
-                with patch(
-                        "custom_components.ha_dashboard_cards.www_manager.os.chmod",
-                        side_effect=OSError("permission denied"),
+                from custom_components.ha_dashboard_cards.www_manager import (
+                    async_setup_cards,
+                )
+
+                with patch.object(
+                        mock_hass.config, "path", return_value=str(tmp_path / "www")
                 ):
-                    result = await async_setup_cards(mock_hass)
+                    with patch(
+                            "custom_components.ha_dashboard_cards.www_manager.os.chmod",
+                            side_effect=OSError("permission denied"),
+                    ):
+                        result = await async_setup_cards(mock_hass)
 
         assert result is True
 
