@@ -196,9 +196,98 @@ class RpiCard extends HTMLElement {
   getCardSize() {
     return 4;
   }
+
+  static getConfigElement() {
+    return document.createElement('rpi-card-editor');
+  }
+
+  static getStubConfig() {
+    return { temp_entity: '' };
+  }
 }
 
 customElements.define('raspberry-pi', RpiCard);
+
+class RpiCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = config;
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (this._pickers) this._pickers.forEach(p => { p.hass = hass; });
+  }
+
+  _render() {
+    if (this._rendered) return;
+    this._rendered = true;
+    this._pickers = [];
+    this._fields = {};
+
+    const container = document.createElement('div');
+    container.style.cssText = 'padding: 16px; display: flex; flex-direction: column; gap: 16px;';
+
+    const schema = [
+      { key: 'title', label: 'Card Title', type: 'text' },
+      { key: 'temp_entity', label: 'CPU Temperature', type: 'entity' },
+      { key: 'ram_entity', label: 'RAM Usage', type: 'entity' },
+      { key: 'disk_entity', label: 'Disk Space', type: 'entity' },
+      { key: 'power_entity', label: 'Power Status', type: 'entity' },
+      { key: 'uptime_entity', label: 'Uptime', type: 'entity' },
+    ];
+
+    for (const field of schema) {
+      const label = document.createElement('div');
+      label.style.cssText = 'font-size: 12px; font-weight: 500; color: var(--secondary-text-color); margin-bottom: -8px;';
+      label.textContent = field.label;
+      container.appendChild(label);
+
+      if (field.type === 'text') {
+        const el = document.createElement('ha-textfield');
+        el.style.width = '100%';
+        el.addEventListener('value-changed', (ev) => {
+          this._config = { ...this._config, [field.key]: ev.detail.value };
+          this._dispatchConfig();
+        });
+        this._fields[field.key] = el;
+        container.appendChild(el);
+      } else {
+        const el = document.createElement('ha-entity-picker');
+        el.style.width = '100%';
+        el.allowCustomEntity = true;
+        el.addEventListener('value-changed', (ev) => {
+          this._config = { ...this._config, [field.key]: ev.detail.value };
+          this._dispatchConfig();
+        });
+        this._fields[field.key] = el;
+        this._pickers.push(el);
+        container.appendChild(el);
+      }
+    }
+
+    this.appendChild(container);
+    this._updateFields();
+  }
+
+  _updateFields() {
+    if (!this._fields || !this._config) return;
+    if (this._hass) this._pickers.forEach(p => { p.hass = this._hass; });
+    for (const [key, el] of Object.entries(this._fields)) {
+      el.value = this._config[key] || '';
+    }
+  }
+
+  _dispatchConfig() {
+    this.dispatchEvent(new CustomEvent('config-changed', {
+      detail: { config: this._config },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+}
+
+customElements.define('rpi-card-editor', RpiCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

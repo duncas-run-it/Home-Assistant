@@ -447,9 +447,125 @@ class SynologyCard extends HTMLElement {
   getCardSize() {
     return 5;
   }
+
+  static getConfigElement() {
+    return document.createElement('synology-card-editor');
+  }
+
+  static getStubConfig() {
+    return { cpu_entity: '' };
+  }
 }
 
 customElements.define('synology-card', SynologyCard);
+
+class SynologyCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = config;
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (this._pickers) this._pickers.forEach(p => { p.hass = hass; });
+  }
+
+  _render() {
+    if (this._rendered) return;
+    this._rendered = true;
+    this._pickers = [];
+    this._fields = {};
+
+    const container = document.createElement('div');
+    container.style.cssText = 'padding: 16px; display: flex; flex-direction: column; gap: 16px;';
+
+    const addDivider = () => {
+      const d = document.createElement('div');
+      d.style.cssText = 'height: 1px; background: var(--divider-color, #e2e8f0); margin: 4px 0;';
+      container.appendChild(d);
+    };
+
+    const addField = (key, label, isEntity = true) => {
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size: 12px; font-weight: 500; color: var(--secondary-text-color); margin-bottom: -8px;';
+      lbl.textContent = label;
+      container.appendChild(lbl);
+
+      if (isEntity) {
+        const el = document.createElement('ha-entity-picker');
+        el.style.width = '100%';
+        el.allowCustomEntity = true;
+        el.addEventListener('value-changed', (ev) => {
+          this._config = { ...this._config, [key]: ev.detail.value };
+          this._dispatchConfig();
+        });
+        this._fields[key] = el;
+        this._pickers.push(el);
+        container.appendChild(el);
+      } else {
+        const el = document.createElement('ha-textfield');
+        el.style.width = '100%';
+        el.addEventListener('value-changed', (ev) => {
+          if (key === 'disk_entities') {
+            const val = ev.detail.value;
+            this._config = { ...this._config, [key]: val ? val.split(',').map(s => s.trim()).filter(Boolean) : [] };
+          } else {
+            this._config = { ...this._config, [key]: ev.detail.value };
+          }
+          this._dispatchConfig();
+        });
+        this._fields[key] = el;
+        container.appendChild(el);
+      }
+    };
+
+    addField('title', 'Card Title', false);
+    addDivider();
+    addField('cpu_entity', 'CPU Usage');
+    addField('memory_entity', 'Memory Usage');
+    addDivider();
+    addField('volume_entity', 'Volume Storage');
+    addField('volume_used_entity', 'Volume Used (optional)');
+    addField('volume_total_entity', 'Volume Total (optional)');
+    addField('disk_entities', 'Disk Entities (comma-separated, e.g. binary_sensor.disk_1, binary_sensor.disk_2)', false);
+    addDivider();
+    addField('network_up_entity', 'Upload Speed');
+    addField('network_down_entity', 'Download Speed');
+    addDivider();
+    addField('temperature_entity', 'Temperature');
+    addField('uptime_entity', 'Uptime');
+    addField('security_entity', 'Security Status');
+    addField('update_entity', 'DSM Update Status');
+    addDivider();
+    addField('power_on_entity', 'Power On Entity');
+    addField('shutdown_entity', 'Shutdown Entity');
+
+    this.appendChild(container);
+    this._updateFields();
+  }
+
+  _updateFields() {
+    if (!this._fields || !this._config) return;
+    if (this._hass) this._pickers.forEach(p => { p.hass = this._hass; });
+    for (const [key, el] of Object.entries(this._fields)) {
+      if (key === 'disk_entities') {
+        el.value = Array.isArray(this._config[key]) ? this._config[key].join(', ') : (this._config[key] || '');
+      } else {
+        el.value = this._config[key] || '';
+      }
+    }
+  }
+
+  _dispatchConfig() {
+    this.dispatchEvent(new CustomEvent('config-changed', {
+      detail: { config: this._config },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+}
+
+customElements.define('synology-card-editor', SynologyCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

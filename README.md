@@ -27,6 +27,7 @@ A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM
 
 #### Features
 
+- **Visual editor** — configure all entities through the HA dashboard UI (no YAML required)
 - **Power On button** — supports button, switch, and wake_on_lan domains
 - **Shut Down button** — shows a custom in-card confirmation modal to prevent accidental shutdown
 - **Haptic feedback** — vibrates on button interactions when viewed in the Home Assistant companion app (Android/iOS). Types: light on initial press, heavy on confirmed shutdown
@@ -48,6 +49,7 @@ A modern health monitor for Raspberry Pi with CPU temperature, RAM usage, disk s
 
 #### Features
 
+- **Visual editor** — configure all entities through the HA dashboard UI
 - **Progress bars** — RAM and disk usage show visual bars with color thresholds
 - **Under-voltage alert** — red warning box when power issues detected
 - **Haptic feedback** — light tap when tapping stats on the companion app
