@@ -16,9 +16,10 @@ No manual resource setup required. The integration auto-registers the cards on s
 
 ### Manual Install
 
-Copy the desired `.js` file to `<config>/www/`, then add it as a resource:
+Manually copy the `.js` files from `custom_components/ha_dashboard_cards/www/` to `<config>/www/ha_dashboard_cards/`, then add them as resources:
 - **Settings → Dashboards → Resources → Add Resource**
-- URL: `/local/synology-card.js` (or `/local/rapsberry-pi.js`)
+- URL: `/local/ha_dashboard_cards/synology-card.js`
+- URL: `/local/ha_dashboard_cards/rapsberry-pi.js`
 - Type: **JavaScript Module**
 
 ## Cards
