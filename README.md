@@ -27,6 +27,8 @@ Copy the desired `.js` file to `<config>/www/`, then add it as a resource:
 
 A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM, storage, disk health, network, temperature, uptime, security status, and DSM update info.
 
+![Synology NAS Dashboard](images/synology-card.png)
+
 | Entity | Attribute | Description |
 |--------|-----------|-------------|
 | `sensor.synology_cpu_load_total` | `state` | CPU usage percentage |
@@ -84,6 +86,8 @@ status: sensor.synology_status
 
 A clean and modern Lovelace custom card for monitoring your Raspberry Pi's vital signs. Displays CPU, RAM, storage, disk health, network, temperature, and more.
 
+![Raspberry Pi Health Card](images/raspberry-pi-card.png)
+
 | Entity | Attribute | Description |
 |--------|-----------|-------------|
 | `sensor.cpu_temperature` | `state` | CPU temperature |
@@ -120,6 +124,6 @@ status: binary_sensor.uptime
 uptime: sensor.uptime
 ```
 
-## Support
+## License
 
-Found a bug or want a feature? [Open an issue](https://github.com/duncas-run-it/Home-Assistant/issues).
+MIT — see [LICENSE](LICENSE).
