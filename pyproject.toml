@@ -1,0 +1,22 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-p no:cacheprovider"
+markers = [
+    "all: all tests",
+    "asyncio: mark test as asyncio",
+]
+
+[tool.coverage.run]
+source = ["custom_components/ha_dashboard_cards"]
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "except Exception",
+]

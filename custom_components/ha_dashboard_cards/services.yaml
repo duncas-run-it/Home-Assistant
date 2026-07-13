@@ -1,0 +1,6 @@
+register_card_resources:
+  name: Register card resources
+  description: >
+    Manually register the Synology NAS Dashboard and Raspberry Pi Health Card
+    as Lovelace resources in all dashboards. After refreshing your browser,
+    the cards will appear in the "Add Card" picker.

@@ -1,7 +1,8 @@
 {
-  "name": "Home Assistant Dashboard Cards",
-  "content_in_root": true,
+  "name": "HA Dashboard Cards",
   "render_readme": true,
   "homeassistant": "2024.1.0",
-  "country": ["US"]
+  "country": [
+    "UK"
+  ]
 }

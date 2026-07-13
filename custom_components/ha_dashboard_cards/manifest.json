@@ -1,0 +1,14 @@
+{
+  "domain": "ha_dashboard_cards",
+  "name": "HA Dashboard Cards",
+  "after_dependencies": [
+    "lovelace"
+  ],
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/duncas-run-it/Home-Assistant",
+  "iot_class": "calculated",
+  "requirements": [],
+  "version": "1.0.0"
+}
