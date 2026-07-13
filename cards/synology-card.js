@@ -196,7 +196,10 @@ class SynologyCard extends HTMLElement {
       };
       const clickable = (id, entityId) => {
         const el = this.querySelector('#' + id);
-        if (el) el.addEventListener('click', () => open(entityId));
+        if (el) el.addEventListener('click', () => {
+          this._haptic('light');
+          open(entityId);
+        });
       };
       clickable('syno-cpu-stat', this.config.cpu_entity);
       clickable('syno-ram-stat', this.config.memory_entity);
