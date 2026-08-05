@@ -1,7 +1,5 @@
 import logging
-import os
 import shutil
-import stat
 from pathlib import Path
 
 from homeassistant.components.lovelace import DOMAIN as LOVELACE_DOMAIN
@@ -31,14 +29,6 @@ async def async_setup_cards(hass: HomeAssistant) -> bool:
             target = target_dir / card
             if source.exists():
                 await hass.async_add_executor_job(shutil.copy2, source, target)
-
-                def set_perms(path=target):
-                    try:
-                        os.chmod(path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
-                    except OSError:
-                        pass
-
-                await hass.async_add_executor_job(set_perms)
                 copied += 1
 
         _LOGGER.debug("Dashboard cards installed to www folder (%d files)", copied)

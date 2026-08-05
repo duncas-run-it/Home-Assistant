@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 
 class TestAsyncSetupCards:
@@ -92,45 +92,6 @@ class TestAsyncSetupCards:
             result = await async_setup_cards(mock_hass)
 
         assert result is False
-
-    async def test_calls_perms_after_copy(self, mock_hass, tmp_path):
-        target_dir = tmp_path / "www" / "ha_dashboard_cards"
-
-        source_dir = tmp_path / "src"
-        source_dir.mkdir()
-        (source_dir / "synology-card.js").write_text("// s")
-        (source_dir / "rapsberry-pi.js").write_text("// p")
-
-        chmod = MagicMock()
-
-        with patch(
-                "custom_components.ha_dashboard_cards.www_manager.WWW_SOURCE_DIR",
-                source_dir,
-        ):
-            with patch(
-                    "custom_components.ha_dashboard_cards.www_manager.shutil.copy2",
-                    side_effect=lambda src, dst: None,
-            ):
-                with patch(
-                        "custom_components.ha_dashboard_cards.www_manager.os.chmod",
-                        chmod,
-                ):
-                    from custom_components.ha_dashboard_cards.www_manager import (
-                        async_setup_cards,
-                    )
-
-                    with patch.object(
-                            mock_hass.config,
-                            "path",
-                            return_value=str(tmp_path / "www"),
-                    ):
-                        result = await async_setup_cards(mock_hass)
-
-        assert result is True
-        assert chmod.call_count == 2
-        for card in ("synology-card.js", "rapsberry-pi.js"):
-            called_paths = [str(c[0][0]) for c in chmod.call_args_list]
-            assert str(target_dir / card) in called_paths
 
 
 class TestAsyncRegisterCards:
@@ -277,34 +238,6 @@ class TestAsyncRegisterCards:
 
         mock_log.error.assert_called()
         assert any("update fail" in str(c) for c in mock_log.error.call_args_list)
-
-    async def test_chmod_oserror_is_silent(self, mock_hass, tmp_path):
-        source_dir = tmp_path / "src"
-        source_dir.mkdir()
-        (source_dir / "synology-card.js").write_text("// s")
-
-        with patch(
-                "custom_components.ha_dashboard_cards.www_manager.WWW_SOURCE_DIR",
-                source_dir,
-        ):
-            with patch(
-                    "custom_components.ha_dashboard_cards.www_manager.shutil.copy2",
-                    side_effect=lambda src, dst: None,
-            ):
-                from custom_components.ha_dashboard_cards.www_manager import (
-                    async_setup_cards,
-                )
-
-                with patch.object(
-                        mock_hass.config, "path", return_value=str(tmp_path / "www")
-                ):
-                    with patch(
-                            "custom_components.ha_dashboard_cards.www_manager.os.chmod",
-                            side_effect=OSError("permission denied"),
-                    ):
-                        result = await async_setup_cards(mock_hass)
-
-        assert result is True
 
 
 class TestAsyncRemoveCardsAndResources:

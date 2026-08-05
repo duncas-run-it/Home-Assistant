@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from tests.fixtures import mock_hass, mock_lovelace_resources, mock_config_entry, tmp_path  # noqa: F401
-from tests.mocks import _MockHass, _MockCallbackType
+from tests.fixtures import mock_hass, mock_lovelace_resources, mock_config_entry  # noqa: F401
+from tests.mocks import _MockHass
 
 _HA_MODULES = {
     "homeassistant",
@@ -63,7 +63,6 @@ def _stub_core():
     import homeassistant.core as mod
 
     mod.HomeAssistant = _MockHass
-    mod.CallbackType = _MockCallbackType
     mod.callback = lambda f: f
 
 

@@ -18,18 +18,16 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    hass.data.setdefault(DOMAIN, {})
-
     await async_setup_cards(hass)
     await async_register_resources_service(hass)
 
-    async def auto_register(event):
-        await async_register_cards(hass)
-
     if hass.is_running:
-        await auto_register(None)
+        await async_register_cards(hass)
     else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, auto_register)
+        hass.bus.async_listen_once(
+            EVENT_HOMEASSISTANT_STARTED,
+            lambda _: hass.async_create_task(async_register_cards(hass)),
+        )
 
     _LOGGER.info(
         "HA Dashboard Cards ready. Cards auto-registered on startup. "
@@ -41,8 +39,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_remove(DOMAIN, "register_card_resources")
-    if entry.entry_id in hass.data.get(DOMAIN, {}):
-        hass.data[DOMAIN].pop(entry.entry_id)
     return True
 
 

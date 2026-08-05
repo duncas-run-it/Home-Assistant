@@ -1,20 +1,10 @@
 from __future__ import annotations
 
-import shutil
-import tempfile
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
 from tests.mocks import _MockHass
-
-
-@pytest.fixture
-def tmp_path():
-    d = Path(tempfile.mkdtemp())
-    yield d
-    shutil.rmtree(d, ignore_errors=True)
 
 
 @pytest.fixture

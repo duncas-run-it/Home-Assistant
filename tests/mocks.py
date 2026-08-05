@@ -37,7 +37,3 @@ class _MockHass:
 
     async def async_add_executor_job(self, fn, *args):
         return fn(*args)
-
-
-class _MockCallbackType:
-    pass

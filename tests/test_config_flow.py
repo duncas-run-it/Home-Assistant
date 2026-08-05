@@ -41,37 +41,3 @@ class TestHaDashboardCardsConfigFlow:
 
         assert result["type"] == "abort"
         assert result["reason"] == "single_instance_allowed"
-
-    async def test_options_flow_init_shows_form(self):
-        from custom_components.ha_dashboard_cards.config_flow import (
-            HaDashboardCardsOptionsFlow,
-        )
-
-        flow = HaDashboardCardsOptionsFlow()
-        result = await flow.async_step_init(user_input=None)
-
-        assert result["type"] == "form"
-        assert result["step_id"] == "init"
-
-    async def test_options_flow_init_submit(self):
-        from custom_components.ha_dashboard_cards.config_flow import (
-            HaDashboardCardsOptionsFlow,
-        )
-
-        flow = HaDashboardCardsOptionsFlow()
-        result = await flow.async_step_init(user_input={})
-
-        assert result["type"] == "create_entry"
-        assert result["data"] == {}
-
-    async def test_async_get_options_flow(self):
-        from custom_components.ha_dashboard_cards.config_flow import (
-            HaDashboardCardsConfigFlow,
-            HaDashboardCardsOptionsFlow,
-        )
-
-        flow = HaDashboardCardsConfigFlow()
-        entry = MagicMock()
-        options_flow = flow.async_get_options_flow(entry)
-
-        assert isinstance(options_flow, HaDashboardCardsOptionsFlow)

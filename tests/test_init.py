@@ -93,25 +93,6 @@ class TestAsyncSetupEntry:
         mock_reg.assert_awaited_once_with(mock_hass)
         assert mock_hass.bus.async_listen_once.call_count == 0
 
-    async def test_sets_up_hass_data(self, mock_hass, mock_config_entry):
-        from custom_components.ha_dashboard_cards import async_setup_entry
-
-        with patch(
-                "custom_components.ha_dashboard_cards.async_setup_cards",
-                AsyncMock(return_value=True),
-        ):
-            with patch(
-                    "custom_components.ha_dashboard_cards.async_register_resources_service",
-                    AsyncMock(),
-            ):
-                with patch(
-                        "custom_components.ha_dashboard_cards.async_register_cards",
-                        AsyncMock(),
-                ):
-                    await async_setup_entry(mock_hass, mock_config_entry)
-
-        assert "ha_dashboard_cards" in mock_hass.data
-
 
 class TestAsyncUnloadEntry:
 
@@ -136,17 +117,6 @@ class TestAsyncUnloadEntry:
         result = await async_unload_entry(mock_hass, mock_config_entry)
 
         assert result is True
-
-    async def test_cleans_hass_data(self, mock_hass, mock_config_entry):
-        mock_hass.data["ha_dashboard_cards"] = {
-            mock_config_entry.entry_id: "some_data"
-        }
-
-        from custom_components.ha_dashboard_cards import async_unload_entry
-
-        await async_unload_entry(mock_hass, mock_config_entry)
-
-        assert mock_hass.data.get("ha_dashboard_cards", {}) == {}
 
 
 class TestAsyncRemoveEntry:
