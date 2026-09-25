@@ -12,7 +12,7 @@ class TestAsyncSetupCards:
 
         source_dir = tmp_path / "source_www"
         source_dir.mkdir(parents=True)
-        (source_dir / "synology-card.js").write_text("// synology")
+        (source_dir / "truenas-card.js").write_text("// truenas")
         (source_dir / "rapsberry-pi.js").write_text("// pi")
 
         with patch(
@@ -29,16 +29,16 @@ class TestAsyncSetupCards:
                 result = await async_setup_cards(mock_hass)
 
         assert result is True
-        assert (target / "synology-card.js").exists()
+        assert (target / "truenas-card.js").exists()
         assert (target / "rapsberry-pi.js").exists()
-        assert (target / "synology-card.js").read_text() == "// synology"
+        assert (target / "truenas-card.js").read_text() == "// truenas"
 
     async def test_creates_www_dir_if_missing(self, mock_hass, tmp_path):
         config_dir = tmp_path / "config"
 
         source_dir = tmp_path / "source_www"
         source_dir.mkdir()
-        (source_dir / "synology-card.js").write_text("// s")
+        (source_dir / "truenas-card.js").write_text("// s")
 
         with patch(
                 "custom_components.ha_dashboard_cards.www_manager.WWW_SOURCE_DIR",
@@ -54,7 +54,7 @@ class TestAsyncSetupCards:
                 result = await async_setup_cards(mock_hass)
 
         assert result is True
-        assert (config_dir / "ha_dashboard_cards" / "synology-card.js").exists()
+        assert (config_dir / "ha_dashboard_cards" / "truenas-card.js").exists()
 
     async def test_skips_missing_source_files(self, mock_hass, tmp_path):
         www = tmp_path / "www"
@@ -144,7 +144,7 @@ class TestAsyncRegisterCards:
         assert resources.async_create_item.call_count == 2
         calls = resources.async_create_item.call_args_list
         urls = [c[0][0]["url"] for c in calls]
-        assert any("synology-card.js" in u for u in urls)
+        assert any("truenas-card.js" in u for u in urls)
         assert any("rapsberry-pi.js" in u for u in urls)
 
     async def test_updates_existing_resource_with_new_version(
@@ -153,7 +153,7 @@ class TestAsyncRegisterCards:
         existing = {
             "id": "res_1",
             "res_type": "module",
-            "url": "/local/ha_dashboard_cards/synology-card.js?v=0.9.0",
+            "url": "/local/ha_dashboard_cards/truenas-card.js?v=0.9.0",
         }
         resources = mock_lovelace_resources(mock_hass)
         resources.async_items.return_value = [existing]
@@ -167,7 +167,7 @@ class TestAsyncRegisterCards:
         resources.async_update_item.assert_called_once()
         args = resources.async_update_item.call_args[0]
         assert args[0] == "res_1"
-        assert "v=1.0.0" in args[1]["url"]
+        assert "v=2.0.0" in args[1]["url"]
 
     async def test_skips_resource_with_matching_url(
             self, mock_hass, mock_lovelace_resources
@@ -176,12 +176,12 @@ class TestAsyncRegisterCards:
             {
                 "id": "res_1",
                 "res_type": "module",
-                "url": "/local/ha_dashboard_cards/synology-card.js?v=1.0.0",
+                "url": "/local/ha_dashboard_cards/truenas-card.js?v=2.0.0",
             },
             {
                 "id": "res_2",
                 "res_type": "module",
-                "url": "/local/ha_dashboard_cards/rapsberry-pi.js?v=1.0.0",
+                "url": "/local/ha_dashboard_cards/rapsberry-pi.js?v=2.0.0",
             },
         ]
         resources = mock_lovelace_resources(mock_hass)
@@ -221,7 +221,7 @@ class TestAsyncRegisterCards:
         existing = {
             "id": "res_1",
             "res_type": "module",
-            "url": "/local/ha_dashboard_cards/synology-card.js?v=0.9.0",
+            "url": "/local/ha_dashboard_cards/truenas-card.js?v=0.9.0",
         }
         resources = mock_lovelace_resources(mock_hass)
         resources.async_items.return_value = [existing]
@@ -245,7 +245,7 @@ class TestAsyncRemoveCardsAndResources:
     async def test_removes_www_directory(self, mock_hass, tmp_path):
         target_dir = tmp_path / "www" / "ha_dashboard_cards"
         target_dir.mkdir(parents=True)
-        (target_dir / "synology-card.js").write_text("// s")
+        (target_dir / "truenas-card.js").write_text("// s")
 
         from custom_components.ha_dashboard_cards.www_manager import (
             async_remove_cards_and_resources,
@@ -278,11 +278,11 @@ class TestAsyncRemoveCardsAndResources:
         resources.async_items.return_value = [
             {
                 "id": "r1",
-                "url": "/local/ha_dashboard_cards/synology-card.js?v=1.0.0",
+                "url": "/local/ha_dashboard_cards/truenas-card.js?v=2.0.0",
             },
             {
                 "id": "r2",
-                "url": "/local/ha_dashboard_cards/rapsberry-pi.js?v=1.0.0",
+                "url": "/local/ha_dashboard_cards/rapsberry-pi.js?v=2.0.0",
             },
         ]
 

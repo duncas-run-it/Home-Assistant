@@ -18,69 +18,58 @@ No manual resource setup required. The integration auto-registers the cards on s
 
 Manually copy the `.js` files from `custom_components/ha_dashboard_cards/www/` to `<config>/www/ha_dashboard_cards/`, then add them as resources:
 - **Settings → Dashboards → Resources → Add Resource**
-- URL: `/local/ha_dashboard_cards/synology-card.js`
+- URL: `/local/ha_dashboard_cards/truenas-card.js`
 - URL: `/local/ha_dashboard_cards/rapsberry-pi.js`
 - Type: **JavaScript Module**
 
 ## Cards
 
-### Synology NAS Dashboard (`synology-card.js`)
+### TrueNAS CE Dashboard (`truenas-card.js`)
 
-A sleek Lovelace custom card for monitoring your Synology NAS. Displays CPU, RAM, storage, disk health, network, temperature, uptime, security status, and DSM update info.
+A Lovelace card for one TrueNAS pool and one primary network interface. It displays CPU, memory, pool usage, pool health, network traffic, temperature, uptime, disk/pool health, update state, and confirmed shutdown control. The card uses the `truenas-card` custom element and is registered automatically by the integration.
 
-![Synology NAS Dashboard](images/synology-card.png)
+The card expects the current `truenas_ce` integration (TrueNAS CE 25.04+). Confirm the generated entity IDs in Home Assistant because migrations, custom names, and multiple TrueNAS instances can change them.
 
-| Entity | Attribute | Description |
-|--------|-----------|-------------|
-| `sensor.synology_cpu_load_total` | `state` | CPU usage percentage |
-| `sensor.synology_memory_usage_real` | `state` | Memory usage percentage |
-| `sensor.synology_storage_volume_*` | `volume_percentage_used` | Storage usage for each volume |
-| `binary_sensor.synology_disk_sda_status` | `state` | Disk health (OK/ abnormal) |
-| `sensor.synology_disk_sda_temp` | `state` or `temperature` | Disk temperature |
-| `sensor.synology_network_up` | `state` (kbps) | Upload speed |
-| `sensor.synology_network_down` | `state` (kbps) | Download speed |
-| `sensor.synology_system_temp` | `state` or `temperature` | System temperature |
-| `sensor.synology_status` | `state` | DSM status (Ready/Updating) |
-| `sensor.synology_up_time` | `state` | Uptime (formatted by HA) |
-| `binary_sensor.synology_security_status` | `state` | Security check (OK/Warning) |
-| `binary_sensor.synology_update_available` | `state` | DSM update availability |
-
-#### Card Configuration
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `type` | string | yes | — | `custom:synology-card` |
-| `title` | string | yes | — | Card header title |
-| `cpu` | string | yes | — | CPU sensor entity ID |
-| `memory` | string | yes | — | Memory sensor entity ID |
-| `storage` | list | yes | — | List of storage volume entities |
-| `disks` | list | yes | — | List of disk entities (name + sensors) |
-| `network` | string | yes | — | Network sensor entity ID prefix |
-| `temperature` | string | no | — | System temperature sensor entity ID |
-| `uptime` | string | no | — | Uptime sensor entity ID |
-| `security` | string | no | — | Security status binary sensor entity ID |
-| `updatetime` | string | no | — | DSM update available binary sensor entity ID |
-| `status` | string | no | — | DSM status sensor entity ID |
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `type` | string | yes | `custom:truenas-card` |
+| `title` | string | no | Card title; defaults to `TrueNAS` |
+| `cpu_entity` | string | yes | TrueNAS CPU usage sensor |
+| `memory_entity` | string | no | TrueNAS memory usage sensor |
+| `volume_name` | string | no | Storage label; defaults to `Storage` |
+| `volume_entity` | string | no | Pool size sensor used as the click target |
+| `volume_used_entity` | string | no | Pool allocated sensor |
+| `volume_total_entity` | string | no | Pool size sensor used to calculate usage |
+| `disk_entities` | list | no | Pool-health binary sensors |
+| `network_up_entity` | string | no | Primary interface TX sensor |
+| `network_down_entity` | string | no | Primary interface RX sensor |
+| `temperature_entity` | string | no | TrueNAS CPU temperature sensor |
+| `uptime_entity` | string | no | TrueNAS uptime sensor; also the shutdown action target |
+| `security_entity` | string | no | TrueNAS Disk/Pool issues problem sensor |
+| `update_entity` | string | no | TrueNAS system update entity |
+| `power_on_entity` | string | no | Existing button/switch target or Wake-on-LAN MAC |
+| `shutdown_entity` | string | no | Uptime sensor targeted by `truenas_ce.system_shutdown` |
 
 #### YAML Example
 
 ```yaml
-type: custom:synology-card
-title: Synology NAS
-cpu: sensor.synology_cpu_load_total
-memory: sensor.synology_memory_usage_real
-storage:
-  - sensor.synology_storage_volume_1
-disks:
-  - name: Disk 1
-    entity: binary_sensor.synology_disk_sda_status
-    temp: sensor.synology_disk_sda_temp
-network: sensor.synology_network
-temperature: sensor.synology_system_temp
-uptime: sensor.synology_up_time
-security: binary_sensor.synology_security_status
-updatetime: binary_sensor.synology_update_available
-status: sensor.synology_status
+type: custom:truenas-card
+title: TrueNAS
+cpu_entity: sensor.truenas_cpu_usage
+memory_entity: sensor.truenas_memory_usage
+volume_name: tank
+volume_entity: sensor.truenas_pools_tank_size
+volume_used_entity: sensor.truenas_pools_tank_allocated
+volume_total_entity: sensor.truenas_pools_tank_size
+disk_entities:
+  - binary_sensor.truenas_pools_tank_healthy
+network_up_entity: sensor.truenas_network_enp1s0_tx
+network_down_entity: sensor.truenas_network_enp1s0_rx
+temperature_entity: sensor.truenas_cpu_temperature
+uptime_entity: sensor.truenas_uptime
+security_entity: binary_sensor.truenas_disk_pool_issues
+update_entity: update.truenas_system_update
+shutdown_entity: sensor.truenas_uptime
 ```
 
 ### Raspberry Pi Health Card (`rapsberry-pi.js`)

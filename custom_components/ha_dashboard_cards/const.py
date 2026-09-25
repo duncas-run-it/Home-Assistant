@@ -1,8 +1,8 @@
 DOMAIN = "ha_dashboard_cards"
 
-VERSION = "1.0.0"
+VERSION = "2.0.0"
 
 CARDS = [
-    "synology-card.js",
+    "truenas-card.js",
     "rapsberry-pi.js",
 ]
